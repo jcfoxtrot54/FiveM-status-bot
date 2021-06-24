@@ -53,7 +53,7 @@ try:
 	import requests # import requests library
 	import json # import json library
 	import datetime # import datetime library
-	from time import sleep # import sleep function from time library
+	from asyncio import sleep # import sleep from asyncio lib
 except ImportError as module: # if an import error is raised
 	print("ERROR: CANNOT IMPORT '"+module.name+"' LIBRARY. IS IT INSTALLED?")
 	exit() # halt execution
@@ -86,12 +86,12 @@ class MyClient(discord.Client):
 					StatusEmbed.add_field(name="\u200b", value="\u200b", inline=False) # insert blanking object
 				else:
 					try:
-						StatusEmbed.add_field(name=serverObj["DisplayName"], value=self.AliveNotice+str(len(requests.get(serverObj["URL"]+"/players.json", timeout=2, verify=False).json()))+"/32 players"+" <:pepecool:666781477224054814>"+"\n\nFind me on the FiveM server listings!\nDirect connect via: `"+PublicIP+":"+serverObj["URL"][-5:]+"`", inline=True)
+						StatusEmbed.add_field(name=serverObj["DisplayName"], value=f"{self.AliveNotice}{len(requests.get(serverObj['URL']+'/players.json', timeout=2, verify=False).json())}/{str(requests.get(serverObj['URL']+'/info.json', timeout=2, verify=False).json()['vars']['sv_maxClients'])} players <:pepecool:666781477224054814> \nFind me on the FiveM server listings!\nDirect connect via: `{serverObj['URL'][-5]}`", inline=True)
 						# runs HTTP request to specified endpoint with a timeout of 2 seconds, encodes it into JSON then gets the length of it (to get number of players). Verify is false because who needs SSL anyway :shrug:
 					except: # if this errors (endpoint isn't reachable)
 						StatusEmbed.add_field(name=serverObj["DisplayName"], value=self.DeadNotice, inline=True)
 			await self.ActiveMessageObject.edit(content=None, embed=StatusEmbed) # edit the message object
 			self.Counter+=1 # incremement counter by one
-			sleep(self.Delay) # wait for specified delay in seconds
+			await sleep(self.Delay) # wait for specified delay in seconds
 client=MyClient(CounterCap, Servers, ChannelID, EmbedTitle, UpdateDelay, PublicIP, ServerUpNotice, ServerDownNotice) # instanciate client from class
 client.run(BotToken, reconnect=True) # run client with specified bot token
